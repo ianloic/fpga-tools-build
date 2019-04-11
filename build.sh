@@ -9,6 +9,7 @@ usage() {
   echo "build.sh help    show this help"
   echo "build.sh deps    install build dependencies"
   echo "build.sh clean   clean up build directories"
+  echo "build.sh update  update all deps"
   echo "build.sh build   build tools"
 }
 
@@ -75,6 +76,9 @@ case $1 in
   clean)
     git submodule --quiet foreach --recursive 'git clean -ffxd'
     rm -rf "${DESTDIR}"
+    ;;
+  update)
+    git submodule update --recursive --remote
     ;;
   build)
     build

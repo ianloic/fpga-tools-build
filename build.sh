@@ -24,8 +24,10 @@ build() {
   NPROC=$(nproc)
   echo "Building into ${DESTDIR}/${PREFIX}"
   build_icestorm
+  build_prjtrellis
   build_yosys
-  build_nextpnr
+  build_nextpnr_ice40
+  build_nextpnr_ecp5
 }
 
 build_icestorm() {
@@ -34,18 +36,33 @@ build_icestorm() {
   PREFIX=${PREFIX} DESTDIR=${DESTDIR} make -C "${DIR}/icestorm" install
 }
 
+build_prjtrellis() {
+  echo "Building project trellis"
+  cmake -S "${DIR}/prjtrellis/libtrellis" -B "${DIR}/prjtrellis/libtrellis" -DCMAKE_INSTALL_PREFIX="${PREFIX}"
+  PREFIX=${PREFIX} make -C "${DIR}/prjtrellis/libtrellis"
+  PREFIX=${PREFIX} DESTDIR=${DESTDIR} make -C "${DIR}/prjtrellis/libtrellis" install
+}
+
 build_yosys() {
   echo "Building yosys"
   PREFIX=${PREFIX} make -C "${DIR}/yosys" -j "${NPROC}"
   PREFIX=${PREFIX} DESTDIR=${DESTDIR} make -C "${DIR}/yosys" install
 }
 
-build_nextpnr() {
-  echo "Building nextpnr"
+build_nextpnr_ice40() {
+  echo "Building nextpnr-ice40"
   local ICE40_BUILD="${DIR}/nextpnr/build.ice40"
   cmake -S "${DIR}/nextpnr" -B "${ICE40_BUILD}" -DARCH=ice40 -DICEBOX_ROOT="${DESTDIR}/${PREFIX}/share/icebox" -DCMAKE_INSTALL_PREFIX="${PREFIX}"
   make -C "${ICE40_BUILD}" -j "${NPROC}"
   DESTDIR=${DESTDIR} make -C "${ICE40_BUILD}" install
+}
+
+build_nextpnr_ecp5() {
+  echo "Building nextpnr/ecp5"
+  local ECP5_BUILD="${DIR}/nextpnr/build.ecp5"
+  cmake -S "${DIR}/nextpnr" -B "${ECP5_BUILD}" -DARCH=ecp5 -DTRELLIS_ROOT="${DIR}/prjtrellis" -DCMAKE_INSTALL_PREFIX="${PREFIX}"
+  make -C "${ECP5_BUILD}" -j "${NPROC}"
+  DESTDIR=${DESTDIR} make -C "${ECP5_BUILD}" install
 }
 
 case $1 in

@@ -7,3 +7,6 @@
 [submodule "nextpnr"]
 	path = nextpnr
 	url = https://github.com/YosysHQ/nextpnr.git
+[submodule "prjtrellis"]
+	path = prjtrellis
+	url = https://github.com/SymbiFlow/prjtrellis
